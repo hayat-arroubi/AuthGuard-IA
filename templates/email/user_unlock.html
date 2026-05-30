@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Débloquez votre compte AuthGuard</title>
+</head>
+<body style="margin:0;padding:0;background:#0f172a;font-family:'Segoe UI',Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f172a;padding:32px 16px">
+    <tr>
+      <td align="center">
+        <table width="520" cellpadding="0" cellspacing="0"
+               style="background:#1e293b;border-radius:12px;border:1px solid rgba(59,130,246,.2);overflow:hidden">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:rgba(59,130,246,.08);padding:24px 32px;border-bottom:1px solid rgba(59,130,246,.15);text-align:center">
+              <span style="font-size:20px;font-weight:700;color:#f1f5f9">🛡 AuthGuard IA</span><br>
+              <span style="font-size:11px;color:#64748b;letter-spacing:1px">SÉCURITÉ DES COMPTES</span>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:32px">
+              <p style="color:#f1f5f9;font-size:16px;font-weight:600;margin:0 0 8px">
+                Bonjour {{ user.username }},
+              </p>
+              <p style="color:#94a3b8;font-size:14px;margin:0 0 24px;line-height:1.6">
+                Notre système IA a détecté une activité inhabituelle sur votre compte et l'a
+                temporairement suspendu pour votre protection.
+              </p>
+
+              <!-- Info box -->
+              <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);
+                          border-radius:8px;padding:14px 16px;margin-bottom:24px">
+                <p style="color:#fbbf24;font-size:12px;font-weight:600;margin:0 0 6px">
+                  ⏱ Ce lien expire dans {{ expires_minutes }} minutes
+                </p>
+                <p style="color:#94a3b8;font-size:12px;margin:0">
+                  Si vous n'avez pas tenté de vous connecter récemment, ignorez cet email et
+                  contactez l'administrateur.
+                </p>
+              </div>
+
+              <!-- CTA button -->
+              <div style="text-align:center;margin-bottom:24px">
+                <a href="{{ unlock_url }}"
+                   style="background:linear-gradient(135deg,#3b82f6,#2563eb);
+                          color:#fff;text-decoration:none;font-size:15px;font-weight:700;
+                          padding:14px 40px;border-radius:10px;display:inline-block;
+                          letter-spacing:.3px">
+                  Débloquer mon compte
+                </a>
+              </div>
+
+              <!-- Fallback link -->
+              <p style="color:#64748b;font-size:11px;text-align:center;margin:0 0 8px">
+                Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :
+              </p>
+              <p style="text-align:center;margin:0">
+                <a href="{{ unlock_url }}"
+                   style="color:#60a5fa;font-size:11px;word-break:break-all">
+                  {{ unlock_url }}
+                </a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:16px 32px;background:rgba(15,23,42,.5);border-top:1px solid rgba(100,116,139,.1)">
+              <p style="color:#475569;font-size:11px;margin:0;text-align:center;line-height:1.7">
+                Cet email a été envoyé automatiquement par AuthGuard IA.<br>
+                Si vous n'êtes pas à l'origine de cette demande, contactez l'administrateur.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

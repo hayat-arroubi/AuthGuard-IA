@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Utilisateurs — AuthGuard IA</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --dark:#111827;--dark-2:#1f2937;--dark-3:#374151;--muted:#6b7280;--border:#e5e7eb;--bg:#f9fafb;--sidebar-w:240px; }
+    body { font-family:'Space Grotesk',sans-serif;background:var(--bg);margin:0; }
+    .navbar-main { background:var(--dark);height:60px;display:flex;align-items:center;padding:0 1.5rem;position:fixed;top:0;left:0;right:0;z-index:1000;border-bottom:1px solid var(--dark-3); }
+    .navbar-brand-text { font-size:1.1rem;font-weight:700;color:#fff; }
+    .navbar-brand-text span { color:#60a5fa; }
+    .nav-user { margin-left:auto;display:flex;align-items:center;gap:.75rem; }
+    .sidebar { width:var(--sidebar-w);position:fixed;top:60px;bottom:0;left:0;background:var(--dark-2);overflow-y:auto;border-right:1px solid var(--dark-3);padding:1rem 0; }
+    .nav-section { font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:.5rem 1.25rem;margin-top:.5rem; }
+    .sidebar .nav-link { display:flex;align-items:center;gap:.625rem;padding:.6rem 1.25rem;color:#9ca3af;font-size:.875rem;font-weight:500;transition:all .15s;text-decoration:none; }
+    .sidebar .nav-link:hover,.sidebar .nav-link.active { background:rgba(255,255,255,.06);color:#fff; }
+    .main-content { margin-top:60px;margin-left:var(--sidebar-w);padding:2rem; }
+    .card { border:1px solid var(--border);border-radius:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.05); }
+    .card-header { background:#fff;border-bottom:1px solid var(--border);border-radius:.75rem .75rem 0 0!important;padding:.875rem 1.25rem;font-weight:600;font-size:.9rem; }
+    .table { font-size:.84rem; }
+    .table thead th { font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);border-bottom:1px solid var(--border);padding:.7rem 1rem; }
+    .table tbody td { padding:.7rem 1rem;vertical-align:middle; }
+    .table tbody tr:hover { background:#f9fafb; }
+    .page-title { font-size:1.35rem;font-weight:700; }
+    .page-sub { color:var(--muted);font-size:.85rem; }
+    .alert { border-radius:.625rem;font-size:.875rem; }
+    .avatar { width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0; }
+  </style>
+</head>
+<body>
+<nav class="navbar-main">
+  <span class="navbar-brand-text"><i class="bi bi-shield-lock-fill me-2" style="color:#60a5fa"></i>Auth<span>Guard</span> IA</span>
+  <div class="nav-user">
+    <span style="background:#dbeafe;color:#1d4ed8;font-size:.7rem;padding:.25rem .6rem;border-radius:999px;font-weight:700;text-transform:uppercase">ADMIN</span>
+    <span style="color:#d1d5db;font-size:.875rem">{{ user.username }}</span>
+    <form method="POST" action="{{ url_for('auth.logout') }}" class="m-0">
+      <button type="submit" class="btn btn-sm" style="background:#374151;color:#9ca3af;border:none"><i class="bi bi-box-arrow-right"></i></button>
+    </form>
+  </div>
+</nav>
+<nav class="sidebar">
+  <div class="nav-section">Navigation</div>
+  <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+  <a href="{{ url_for('admin.logs') }}" class="nav-link"><i class="bi bi-journal-text"></i> Logs connexions</a>
+  <a href="{{ url_for('admin.alertes') }}" class="nav-link"><i class="bi bi-bell"></i> Alertes IA</a>
+  <div class="nav-section">Gestion</div>
+  <a href="{{ url_for('admin.users') }}" class="nav-link active"><i class="bi bi-people"></i> Utilisateurs</a>
+  <div class="nav-section">Compte</div>
+  <a href="{{ url_for('auth.profile') }}" class="nav-link"><i class="bi bi-person-circle"></i> Mon profil</a>
+  <form method="POST" action="{{ url_for('auth.logout') }}" class="px-3 mt-1">
+    <button type="submit" class="nav-link w-100 text-start border-0" style="background:none;color:#f87171;cursor:pointer"><i class="bi bi-box-arrow-right"></i> Déconnexion</button>
+  </form>
+</nav>
+
+<main class="main-content">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for c,m in messages %}
+      <div class="alert alert-{{ c }} alert-dismissible fade show mb-3">{{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    {% endfor %}{% endif %}
+  {% endwith %}
+
+  <div class="page-title mb-1"><i class="bi bi-people me-2" style="color:#1a56db"></i>Gestion des utilisateurs</div>
+  <div class="page-sub mb-4">{{ users|length }} compte(s) enregistré(s)</div>
+
+  <div class="card">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>Utilisateur</th>
+              <th>Rôle</th>
+              <th>Statut</th>
+              <th>Inscrit le</th>
+              <th>Connexions</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            {% set initials = u.username[0]|upper %}
+            {% set colors = ['#dbeafe,#1d4ed8','#d1fae5,#065f46','#fef3c7,#92400e','#ede9fe,#5b21b6','#fee2e2,#991b1b'] %}
+            {% set ci = loop.index0 % 5 %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar" style="background:{{ ['#dbeafe','#d1fae5','#fef3c7','#ede9fe','#fee2e2'][ci] }};color:{{ ['#1d4ed8','#065f46','#92400e','#5b21b6','#991b1b'][ci] }}">
+                    {{ initials }}
+                  </div>
+                  <div>
+                    <div style="font-weight:600">{{ u.username }}</div>
+                    <div style="color:var(--muted);font-size:.8rem">{{ u.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <form method="POST" action="{{ url_for('admin.change_role', user_id=u.id) }}" class="d-inline">
+                  <select name="role" onchange="this.form.submit()" class="form-select form-select-sm"
+                          style="width:auto;font-size:.78rem;padding:.25rem .5rem"
+                          {{ 'disabled' if u.id == user.id }}>
+                    <option value="user"  {{ 'selected' if u.role.value == 'user'  }}>Utilisateur</option>
+                    <option value="admin" {{ 'selected' if u.role.value == 'admin' }}>Administrateur</option>
+                  </select>
+                </form>
+              </td>
+              <td>
+                {% if u.is_blocked %}
+                  <span style="background:#fee2e2;color:#991b1b;font-size:.72rem;padding:.25rem .65rem;border-radius:999px;font-weight:600">
+                    <i class="bi bi-shield-x me-1"></i>Bloqué
+                  </span>
+                {% else %}
+                  <span style="background:#d1fae5;color:#065f46;font-size:.72rem;padding:.25rem .65rem;border-radius:999px;font-weight:600">
+                    <i class="bi bi-shield-check me-1"></i>Actif
+                  </span>
+                {% endif %}
+              </td>
+              <td style="color:var(--muted);font-size:.82rem">
+                {{ u.created_at.strftime('%d/%m/%Y') if u.created_at else '—' }}
+              </td>
+              <td style="color:var(--muted)">
+                {{ u.logs.count() }}
+              </td>
+              <td>
+                <div class="d-flex gap-1 flex-wrap">
+                  {% if u.id != user.id %}
+                    {% if u.is_blocked %}
+                    <form method="POST" action="{{ url_for('admin.unblock_user', user_id=u.id) }}">
+                      <button type="submit" class="btn btn-sm btn-success" title="Débloquer" style="font-size:.75rem;padding:.3rem .6rem">
+                        <i class="bi bi-unlock me-1"></i>Débloquer
+                      </button>
+                    </form>
+                    {% else %}
+                    <form method="POST" action="{{ url_for('admin.block_user', user_id=u.id) }}"
+                          onsubmit="return confirm('Bloquer {{ u.username }} ?')">
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Bloquer" style="font-size:.75rem;padding:.3rem .6rem">
+                        <i class="bi bi-shield-x me-1"></i>Bloquer
+                      </button>
+                    </form>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('admin.force_logout', user_id=u.id) }}">
+                      <button type="submit" class="btn btn-sm btn-outline-secondary" title="Forcer déconnexion" style="font-size:.75rem;padding:.3rem .6rem">
+                        <i class="bi bi-box-arrow-right"></i>
+                      </button>
+                    </form>
+                  {% else %}
+                    <span style="color:var(--muted);font-size:.78rem;font-style:italic">Vous</span>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

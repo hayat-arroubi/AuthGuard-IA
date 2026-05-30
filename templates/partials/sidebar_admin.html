@@ -1,0 +1,42 @@
+{# templates/partials/sidebar_admin.html #}
+<nav class="sidebar">
+  <div class="nav-section">Navigation</div>
+
+  <a href="{{ url_for('admin.dashboard') }}"
+     class="nav-link {{ 'active' if request.endpoint == 'admin.dashboard' }}">
+    <i class="bi bi-grid-1x2"></i> Dashboard
+  </a>
+
+  <a href="{{ url_for('admin.logs') }}"
+     class="nav-link {{ 'active' if request.endpoint == 'admin.logs' }}">
+    <i class="bi bi-journal-text"></i> Logs de connexion
+  </a>
+
+  <a href="{{ url_for('admin.alertes') }}"
+     class="nav-link {{ 'active' if request.endpoint == 'admin.alertes' }}">
+    <i class="bi bi-bell"></i> Alertes IA
+    {% set open_count = namespace(n=0) %}
+    {# Badge dynamique Sprint 4 #}
+  </a>
+
+  <div class="nav-section">Gestion</div>
+
+  <a href="{{ url_for('admin.users') }}"
+     class="nav-link {{ 'active' if request.endpoint == 'admin.users' }}">
+    <i class="bi bi-people"></i> Utilisateurs
+  </a>
+
+  <div class="nav-section">Mon compte</div>
+
+  <a href="{{ url_for('auth.profile') }}"
+     class="nav-link {{ 'active' if request.endpoint == 'auth.profile' }}">
+    <i class="bi bi-person-circle"></i> Mon profil
+  </a>
+
+  <form method="POST" action="{{ url_for('auth.logout') }}" class="px-3 mt-2">
+    <button type="submit" class="nav-link w-100 text-start border-0"
+            style="background:none;color:#f87171">
+      <i class="bi bi-box-arrow-right"></i> Déconnexion
+    </button>
+  </form>
+</nav>

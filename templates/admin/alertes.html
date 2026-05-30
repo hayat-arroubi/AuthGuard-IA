@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Alertes — AuthGuard IA</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --dark:#111827;--dark-2:#1f2937;--dark-3:#374151;--muted:#6b7280;--border:#e5e7eb;--bg:#f9fafb;--sidebar-w:240px; }
+    body { font-family:'Space Grotesk',sans-serif;background:var(--bg);margin:0; }
+    code { font-family:'JetBrains Mono',monospace;font-size:.83em; }
+    .navbar-main { background:var(--dark);height:60px;display:flex;align-items:center;padding:0 1.5rem;position:fixed;top:0;left:0;right:0;z-index:1000;border-bottom:1px solid var(--dark-3); }
+    .navbar-brand-text { font-size:1.1rem;font-weight:700;color:#fff; }
+    .navbar-brand-text span { color:#60a5fa; }
+    .nav-user { margin-left:auto;display:flex;align-items:center;gap:.75rem; }
+    .sidebar { width:var(--sidebar-w);position:fixed;top:60px;bottom:0;left:0;background:var(--dark-2);overflow-y:auto;border-right:1px solid var(--dark-3);padding:1rem 0; }
+    .nav-section { font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:.5rem 1.25rem;margin-top:.5rem; }
+    .sidebar .nav-link { display:flex;align-items:center;gap:.625rem;padding:.6rem 1.25rem;color:#9ca3af;font-size:.875rem;font-weight:500;transition:all .15s;text-decoration:none; }
+    .sidebar .nav-link:hover,.sidebar .nav-link.active { background:rgba(255,255,255,.06);color:#fff; }
+    .main-content { margin-top:60px;margin-left:var(--sidebar-w);padding:2rem; }
+    .card { border:1px solid var(--border);border-radius:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.05); }
+    .card-header { background:#fff;border-bottom:1px solid var(--border);border-radius:.75rem .75rem 0 0!important;padding:.875rem 1.25rem;font-weight:600;font-size:.9rem; }
+    .stat-card { background:#fff;border:1px solid var(--border);border-radius:.75rem;padding:1.25rem;display:flex;align-items:center;gap:1rem; }
+    .stat-icon { width:48px;height:48px;border-radius:.625rem;display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0; }
+    .stat-value { font-size:1.75rem;font-weight:700;line-height:1; }
+    .stat-label { font-size:.78rem;color:var(--muted);font-weight:500;margin-top:.15rem; }
+    .table { font-size:.84rem; }
+    .table thead th { font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);border-bottom:1px solid var(--border);padding:.7rem 1rem; }
+    .table tbody td { padding:.7rem 1rem;vertical-align:middle; }
+    .table tbody tr:hover { background:#f9fafb; }
+    .badge-en_cours { background:#fef3c7;color:#92400e;font-size:.72rem;padding:.25rem .65rem;border-radius:999px;font-weight:600; }
+    .badge-resolu   { background:#d1fae5;color:#065f46;font-size:.72rem;padding:.25rem .65rem;border-radius:999px;font-weight:600; }
+    .badge-ignore   { background:#f3f4f6;color:#6b7280;font-size:.72rem;padding:.25rem .65rem;border-radius:999px;font-weight:600; }
+    .score-anomaly  { color:#dc2626;font-weight:700; }
+    .page-title { font-size:1.35rem;font-weight:700; }
+    .page-sub { color:var(--muted);font-size:.85rem; }
+    .alert { border-radius:.625rem;font-size:.875rem; }
+    .notif-banner { background:#fff7ed;border:1px solid #fed7aa;border-radius:.75rem;padding:.875rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem;color:#92400e;font-size:.875rem; }
+  </style>
+</head>
+<body>
+<nav class="navbar-main">
+  <span class="navbar-brand-text"><i class="bi bi-shield-lock-fill me-2" style="color:#60a5fa"></i>Auth<span>Guard</span> IA</span>
+  <div class="nav-user">
+    <span style="background:#dbeafe;color:#1d4ed8;font-size:.7rem;padding:.25rem .6rem;border-radius:999px;font-weight:700;text-transform:uppercase">ADMIN</span>
+    <span style="color:#d1d5db;font-size:.875rem">{{ user.username }}</span>
+    <form method="POST" action="{{ url_for('auth.logout') }}" class="m-0">
+      <button type="submit" class="btn btn-sm" style="background:#374151;color:#9ca3af;border:none"><i class="bi bi-box-arrow-right"></i></button>
+    </form>
+  </div>
+</nav>
+<nav class="sidebar">
+  <div class="nav-section">Navigation</div>
+  <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+  <a href="{{ url_for('admin.logs') }}" class="nav-link"><i class="bi bi-journal-text"></i> Logs connexions</a>
+  <a href="{{ url_for('admin.alertes') }}" class="nav-link active"><i class="bi bi-bell"></i> Alertes IA</a>
+  <div class="nav-section">Gestion</div>
+  <a href="{{ url_for('admin.users') }}" class="nav-link"><i class="bi bi-people"></i> Utilisateurs</a>
+  <div class="nav-section">Compte</div>
+  <a href="{{ url_for('auth.profile') }}" class="nav-link"><i class="bi bi-person-circle"></i> Mon profil</a>
+  <form method="POST" action="{{ url_for('auth.logout') }}" class="px-3 mt-1">
+    <button type="submit" class="nav-link w-100 text-start border-0" style="background:none;color:#f87171;cursor:pointer"><i class="bi bi-box-arrow-right"></i> Déconnexion</button>
+  </form>
+</nav>
+
+<main class="main-content">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for c,m in messages %}
+      <div class="alert alert-{{ c }} alert-dismissible fade show mb-3">{{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    {% endfor %}{% endif %}
+  {% endwith %}
+
+  <div class="page-title mb-1"><i class="bi bi-bell me-2" style="color:#1a56db"></i>Alertes IA</div>
+  <div class="page-sub mb-4">Détection d'anomalies comportementales en temps réel</div>
+
+  <!-- Notification email auto -->
+  <div class="notif-banner">
+    <i class="bi bi-envelope-check" style="font-size:1.2rem;color:#d97706"></i>
+    <span><strong>Notification automatique activée</strong> — Un email est envoyé à l'administrateur et à l'utilisateur lors de chaque détection d'anomalie.</span>
+  </div>
+
+  <!-- Compteurs -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-4">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#fef3c7;color:#d97706"><i class="bi bi-hourglass-split"></i></div>
+        <div><div class="stat-value">{{ counts.en_cours }}</div><div class="stat-label">En cours</div></div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#d1fae5;color:#059669"><i class="bi bi-check-circle"></i></div>
+        <div><div class="stat-value">{{ counts.resolu }}</div><div class="stat-label">Résolues</div></div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#f3f4f6;color:#6b7280"><i class="bi bi-slash-circle"></i></div>
+        <div><div class="stat-value">{{ counts.ignore }}</div><div class="stat-label">Ignorées</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtre statut -->
+  <div class="d-flex gap-2 mb-3">
+    <a href="{{ url_for('admin.alertes') }}" class="btn btn-sm {{ 'btn-primary' if not status_filter else 'btn-outline-secondary' }}">Toutes</a>
+    <a href="{{ url_for('admin.alertes', status='en_cours') }}" class="btn btn-sm {{ 'btn-warning' if status_filter == 'en_cours' else 'btn-outline-warning' }}">En cours</a>
+    <a href="{{ url_for('admin.alertes', status='resolu') }}" class="btn btn-sm {{ 'btn-success' if status_filter == 'resolu' else 'btn-outline-success' }}">Résolues</a>
+    <a href="{{ url_for('admin.alertes', status='ignore') }}" class="btn btn-sm {{ 'btn-secondary' if status_filter == 'ignore' else 'btn-outline-secondary' }}">Ignorées</a>
+  </div>
+
+  <!-- Table alertes -->
+  <div class="card">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Utilisateur</th>
+              <th>IP</th>
+              <th>Score IA</th>
+              <th>Type</th>
+              <th>Message</th>
+              <th>Statut</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in alertes %}
+            <tr>
+              <td style="color:var(--muted)">{{ a.id }}</td>
+              <td>
+                {% if a.user %}
+                  <strong>{{ a.user.username }}</strong><br>
+                  <small style="color:var(--muted)">{{ a.user.email }}</small>
+                {% else %}—{% endif %}
+              </td>
+              <td>
+                {% if a.log %}
+                  <code style="background:#f3f4f6;padding:.15rem .45rem;border-radius:.3rem">{{ a.log.ip_address or '—' }}</code>
+                {% else %}—{% endif %}
+              </td>
+              <td>
+                {% if a.log and a.log.anomaly_score %}
+                  <span class="score-anomaly">{{ '%.3f'|format(a.log.anomaly_score) }}</span>
+                {% else %}—{% endif %}
+              </td>
+              <td>
+                <span style="background:#fee2e2;color:#991b1b;font-size:.72rem;padding:.25rem .65rem;border-radius:.375rem;font-weight:600">
+                  {{ a.type or 'ANOMALIE' }}
+                </span>
+              </td>
+              <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)">
+                {{ a.message or '—' }}
+              </td>
+              <td>
+                <span class="badge-{{ a.status.value }}">
+                  {% if a.status.value == 'en_cours' %}<i class="bi bi-hourglass-split me-1"></i>En cours
+                  {% elif a.status.value == 'resolu' %}<i class="bi bi-check-circle me-1"></i>Résolu
+                  {% else %}<i class="bi bi-slash-circle me-1"></i>Ignoré{% endif %}
+                </span>
+              </td>
+              <td style="color:var(--muted);font-size:.8rem;white-space:nowrap">
+                {{ a.created_at.strftime('%d/%m %H:%M') if a.created_at else '—' }}
+              </td>
+              <td>
+                <div class="d-flex gap-1 flex-wrap">
+                  {% if a.user and a.user.is_blocked %}
+                  <form method="POST" action="{{ url_for('admin.unblock_user', user_id=a.user.id) }}">
+                    <button type="submit" class="btn btn-sm btn-success" style="font-size:.75rem;padding:.25rem .6rem">
+                      <i class="bi bi-unlock me-1"></i>Débloquer
+                    </button>
+                  </form>
+                  {% else %}
+                  <span style="color:#059669;font-size:.78rem"><i class="bi bi-unlock-fill me-1"></i>Débloqué</span>
+                  {% endif %}
+                  {% if a.status.value == 'en_cours' %}
+                  <form method="POST" action="{{ url_for('admin.update_alert_status', alert_id=a.id) }}">
+                    <input type="hidden" name="status" value="resolu">
+                    <button type="submit" class="btn btn-sm btn-outline-success" title="Marquer résolu" style="font-size:.75rem;padding:.25rem .5rem">
+                      <i class="bi bi-check"></i>
+                    </button>
+                  </form>
+                  <form method="POST" action="{{ url_for('admin.update_alert_status', alert_id=a.id) }}">
+                    <input type="hidden" name="status" value="ignore">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Ignorer" style="font-size:.75rem;padding:.25rem .5rem">
+                      <i class="bi bi-slash"></i>
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="9" class="text-center py-5" style="color:var(--muted)">
+                <i class="bi bi-shield-check" style="font-size:2.5rem;display:block;margin-bottom:.5rem;color:#d1fae5"></i>
+                Aucune alerte — Système sécurisé
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

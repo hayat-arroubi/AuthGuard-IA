@@ -1,0 +1,105 @@
+{% extends "auth/base_auth.html" %}
+{% block title %}Inscription — AuthGuard IA{% endblock %}
+
+{% block auth_content %}
+<div class="auth-card">
+  <h2 style="color:#f1f5f9;font-size:1.15rem;font-weight:700;margin-bottom:1.5rem">
+    <i class="bi bi-person-plus me-2" style="color:#60a5fa"></i>Créer un compte
+  </h2>
+
+  <form method="POST" action="{{ url_for('auth.register') }}" novalidate>
+    <div class="mb-3">
+      <label class="form-label">Nom d'utilisateur</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-person"></i></span>
+        <input type="text" name="username" class="form-control"
+               placeholder="Jean Dupont"
+               value="{{ username|default('') }}" required minlength="3">
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Adresse email</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+        <input type="email" name="email" class="form-control"
+               placeholder="vous@example.com"
+               value="{{ email|default('') }}" required>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Mot de passe</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-key"></i></span>
+        <input type="password" name="password" id="password" class="form-control"
+               placeholder="Min. 8 caractères" required minlength="8">
+      </div>
+      <!-- Force indicateur -->
+      <div class="mt-2">
+        <div id="strength-bar" style="height:3px;border-radius:999px;background:#374151;transition:all .3s">
+          <div id="strength-fill" style="height:100%;width:0%;border-radius:999px;transition:all .3s;background:#ef4444"></div>
+        </div>
+        <small id="strength-text" style="color:#64748b;font-size:.72rem"></small>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label">Confirmer le mot de passe</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+        <input type="password" name="confirm_password" id="confirm_password" class="form-control"
+               placeholder="Répétez le mot de passe" required>
+      </div>
+      <small id="match-msg" class="mt-1 d-block" style="font-size:.72rem"></small>
+    </div>
+
+    <button type="submit" class="btn-auth">
+      <i class="bi bi-person-check me-2"></i>Créer mon compte
+    </button>
+  </form>
+
+  <div class="divider"><span>ou</span></div>
+
+  <div class="text-center">
+    <span style="color:#64748b;font-size:.875rem">Déjà inscrit ?</span>
+    <a href="{{ url_for('auth.login') }}" class="auth-link ms-1">Se connecter</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const pwdInput = document.getElementById('password');
+const confirmInput = document.getElementById('confirm_password');
+
+pwdInput.addEventListener('input', () => {
+  const v = pwdInput.value;
+  let strength = 0;
+  if (v.length >= 8)  strength++;
+  if (/[A-Z]/.test(v)) strength++;
+  if (/[0-9]/.test(v)) strength++;
+  if (/[^A-Za-z0-9]/.test(v)) strength++;
+
+  const fill = document.getElementById('strength-fill');
+  const text = document.getElementById('strength-text');
+  const colors = ['#ef4444','#f59e0b','#3b82f6','#22c55e'];
+  const labels = ['Très faible','Faible','Moyen','Fort'];
+  fill.style.width  = (strength * 25) + '%';
+  fill.style.background = colors[strength - 1] || '#ef4444';
+  text.textContent  = v.length ? labels[strength - 1] || '' : '';
+  text.style.color  = colors[strength - 1] || '#ef4444';
+});
+
+confirmInput.addEventListener('input', () => {
+  const msg = document.getElementById('match-msg');
+  if (confirmInput.value === pwdInput.value) {
+    msg.textContent = '✓ Les mots de passe correspondent';
+    msg.style.color = '#22c55e';
+  } else {
+    msg.textContent = '✗ Les mots de passe ne correspondent pas';
+    msg.style.color = '#ef4444';
+  }
+});
+</script>
+{% endblock %}

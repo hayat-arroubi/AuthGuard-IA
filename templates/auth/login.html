@@ -1,0 +1,61 @@
+{% extends "auth/base_auth.html" %}
+{% block title %}Connexion — AuthGuard IA{% endblock %}
+
+{% block auth_content %}
+<div class="auth-card">
+  <h2 style="color:#f1f5f9;font-size:1.15rem;font-weight:700;margin-bottom:1.5rem">
+    <i class="bi bi-person-lock me-2" style="color:#60a5fa"></i>Se connecter
+  </h2>
+
+  <form method="POST" action="{{ url_for('auth.login') }}" novalidate>
+    <div class="mb-3">
+      <label class="form-label">Adresse email</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+        <input type="email" name="email" class="form-control"
+               placeholder="vous@example.com"
+               value="{{ email|default('') }}" required autocomplete="email">
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label">Mot de passe</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-key"></i></span>
+        <input type="password" name="password" id="password" class="form-control"
+               placeholder="••••••••" required autocomplete="current-password">
+        <button type="button" class="input-group-text" onclick="togglePwd()" style="cursor:pointer;border-radius:0 .625rem .625rem 0 !important;border-left:none">
+          <i class="bi bi-eye" id="eye-icon"></i>
+        </button>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-auth">
+      <i class="bi bi-shield-check me-2"></i>Se connecter
+    </button>
+  </form>
+
+  <div class="divider"><span>ou</span></div>
+
+  <div class="text-center">
+    <span style="color:#64748b;font-size:.875rem">Pas encore de compte ?</span>
+    <a href="{{ url_for('auth.register') }}" class="auth-link ms-1">Créer un compte</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePwd() {
+  const input = document.getElementById('password');
+  const icon  = document.getElementById('eye-icon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'bi bi-eye-slash';
+  } else {
+    input.type = 'password';
+    icon.className = 'bi bi-eye';
+  }
+}
+</script>
+{% endblock %}
